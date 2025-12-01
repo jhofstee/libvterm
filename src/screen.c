@@ -311,6 +311,7 @@ static int erase_internal(VTermRect rect, int selective, void *user)
 static int erase_user(VTermRect rect, int selective, void *user)
 {
   VTermScreen *screen = user;
+  (void) selective;
 
   damagerect(screen, rect);
 
@@ -511,6 +512,7 @@ static int bell(void *user)
 static int line_popcount(ScreenCell *buffer, int row, int rows, int cols)
 {
   int col = cols - 1;
+  (void) rows;
   while(col >= 0 && buffer[row * cols + col].chars[0] == 0)
     col--;
   return col + 1;

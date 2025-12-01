@@ -20,6 +20,7 @@ struct UTF8DecoderData {
 static void init_utf8(VTermEncoding *enc, void *data_)
 {
   struct UTF8DecoderData *data = data_;
+  (void) enc;
 
   data->bytes_remaining = 0;
   data->bytes_total     = 0;
@@ -30,6 +31,7 @@ static void decode_utf8(VTermEncoding *enc, void *data_,
                         const char bytes[], size_t *pos, size_t bytelen)
 {
   struct UTF8DecoderData *data = data_;
+  (void) enc;
 
 #ifdef DEBUG_PRINT_UTF8
   printf("BEGIN UTF-8\n");
@@ -164,6 +166,8 @@ static void decode_usascii(VTermEncoding *enc, void *data,
                            const char bytes[], size_t *pos, size_t bytelen)
 {
   int is_gr = bytes[*pos] & 0x80;
+  (void) data;
+  (void) enc;
 
   for(; *pos < bytelen && *cpi < cplen; (*pos)++) {
     unsigned char c = bytes[*pos] ^ is_gr;
@@ -190,6 +194,7 @@ static void decode_table(VTermEncoding *enc, void *data,
 {
   struct StaticTableEncoding *table = (struct StaticTableEncoding *)enc;
   int is_gr = bytes[*pos] & 0x80;
+  (void) data;
 
   for(; *pos < bytelen && *cpi < cplen; (*pos)++) {
     unsigned char c = bytes[*pos] ^ is_gr;

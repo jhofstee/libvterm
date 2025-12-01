@@ -344,7 +344,7 @@ static int on_text(const char bytes[], size_t len, void *user)
 #endif
 
       /* Find where we need to append these combining chars */
-      int saved_i = 0;
+      size_t saved_i = 0;
       while(state->combine_chars[saved_i])
         saved_i++;
 
@@ -438,7 +438,7 @@ static int on_text(const char bytes[], size_t len, void *user)
     if(i == npoints - 1) {
       /* End of the buffer. Save the chars in case we have to combine with
        * more on the next call */
-      int save_i;
+      size_t save_i;
       for(save_i = 0; chars[save_i]; save_i++) {
         if(save_i >= state->combine_chars_size)
           grow_combine_buffer(state);
@@ -1844,7 +1844,7 @@ static void request_status_string(VTermState *state, VTermStringFragment frag)
   if(frag.initial)
     tmp[0] = tmp[1] = tmp[2] = tmp[3] = 0;
 
-  int i = 0;
+  size_t i = 0;
   while(i < sizeof(state->tmp.decrqss)-1 && tmp[i])
     i++;
   while(i < sizeof(state->tmp.decrqss)-1 && frag.len--)
@@ -2304,7 +2304,7 @@ void vterm_state_send_selection(VTermState *state, VTermSelectionMask mask, VTer
 
   if(frag.initial) {
     /* TODO: support sending more than one mask bit */
-    const static char selection_chars[] = "cpqs";
+    static const char selection_chars[] = "cpqs";
     int idx;
     for(idx = 0; idx < 4; idx++)
       if(mask & (1 << idx))

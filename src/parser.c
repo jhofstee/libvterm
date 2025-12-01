@@ -240,6 +240,7 @@ size_t vterm_input_write(VTerm *vt, const char *bytes, size_t len)
       vt->parser.v.csi.argi++;
       vt->parser.intermedlen = 0;
       vt->parser.state = CSI_INTERMED;
+      /* fallthrough */
     case CSI_INTERMED:
       if(is_intermed(c)) {
         if(vt->parser.intermedlen < INTERMED_MAX-1)
