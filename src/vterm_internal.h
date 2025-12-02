@@ -14,7 +14,7 @@
 #ifdef DEBUG
 # define DEBUG_LOG(...) fprintf(stderr, __VA_ARGS__)
 #else
-# define DEBUG_LOG(...)
+# define DEBUG_LOG(...) do {} while(0)
 #endif
 
 #define ESC_S "\x1b"
