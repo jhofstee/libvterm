@@ -547,6 +547,7 @@ typedef struct {
   int (*sb_clear)(void* user);
   /* ABI-compat this is only used if vterm_screen_callbacks_has_pushline4() is called */
   int (*sb_pushline4)(int cols, const VTermScreenCell *cells, bool continuation, void *user);
+  int (*sb_reflow)(int cols, void *user);
 } VTermScreenCallbacks;
 
 VTermScreen *vterm_obtain_screen(VTerm *vt);
@@ -555,6 +556,13 @@ void  vterm_screen_set_callbacks(VTermScreen *screen, const VTermScreenCallbacks
 void *vterm_screen_get_cbdata(VTermScreen *screen);
 
 void vterm_screen_callbacks_has_pushline4(VTermScreen *screen);
+
+// When enabled, sb_reflow will be called during resize, before the lines are popped back
+// on to the screen. Providing an opportunity to reflow the scroll back buffer. When
+// successful popline will be called with the new collumn size.
+// NOTE: this is called _during_ resize, so calling back into vterm should better not be done,
+// use the resize callback instead which is called after the resize has been done.
+void vterm_screen_callbacks_has_sb_reflow(VTermScreen *screen);
 
 void  vterm_screen_set_unrecognised_fallbacks(VTermScreen *screen, const VTermStateFallbacks *fallbacks, void *user);
 void *vterm_screen_get_unrecognised_fbdata(VTermScreen *screen);

@@ -49,6 +49,7 @@ struct VTermScreen
   const VTermScreenCallbacks *callbacks;
   void *cbdata;
   bool callbacks_has_pushline4;
+  bool callbacks_has_sb_reflow;
 
   VTermDamageSize damage_merge;
   /* start_row == -1 => no damage */
@@ -690,15 +691,25 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
     if(active)
       statefields->pos.row -= (old_row + 1);
   }
+
+  // default behaviour, lines get truncated when shrinking
+  int max_cols = (old_cols > new_cols ? new_cols : old_cols);
+
+  if (screen->callbacks_has_sb_reflow && screen->callbacks->sb_reflow) {
+    // unless scroll back resizing is supported..
+    if (screen->callbacks->sb_reflow(new_cols, screen->cbdata))
+      max_cols = new_cols;
+  }
+
   if(new_row >= 0 && bufidx == BUFIDX_PRIMARY &&
       screen->callbacks && screen->callbacks->sb_popline) {
     /* Try to backfill rows by popping scrollback buffer */
     while(new_row >= 0) {
-      if(!(screen->callbacks->sb_popline(old_cols, screen->sb_buffer, screen->cbdata)))
+      if(!(screen->callbacks->sb_popline(max_cols, screen->sb_buffer, screen->cbdata)))
         break;
 
       VTermPos pos = { .row = new_row };
-      for(pos.col = 0; pos.col < old_cols && pos.col < new_cols; pos.col += screen->sb_buffer[pos.col].width) {
+      for(pos.col = 0; pos.col < max_cols; pos.col += screen->sb_buffer[pos.col].width) {
         VTermScreenCell *src = &screen->sb_buffer[pos.col];
         ScreenCell *dst = &new_buffer[pos.row * new_cols + pos.col];
 
@@ -1084,6 +1095,11 @@ void *vterm_screen_get_cbdata(VTermScreen *screen)
 void vterm_screen_callbacks_has_pushline4(VTermScreen *screen)
 {
   screen->callbacks_has_pushline4 = true;
+}
+
+void vterm_screen_callbacks_has_sb_reflow(VTermScreen *screen)
+{
+  screen->callbacks_has_sb_reflow = true;
 }
 
 void vterm_screen_set_unrecognised_fallbacks(VTermScreen *screen, const VTermStateFallbacks *fallbacks, void *user)
